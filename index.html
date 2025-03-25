@@ -3,52 +3,109 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NEMA 3D Assistant</title>
+  <title>NEMA AI 3D Assistant</title>
   <style>
     body {
       margin: 0;
       background-color: black;
-      color: white;
       font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      overflow: hidden;
     }
-    canvas {
-      width: 100%;
+    #scene-container {
+      width: 100vw;
       height: 80vh;
       display: block;
     }
     .chat-box {
+      position: absolute;
+      bottom: 0;
       width: 100%;
-      max-width: 600px;
       background: #111;
-      border-top: 2px solid #444;
       padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .chat-box input {
-      width: 80%;
+      width: 60%;
       padding: 10px;
-      border: none;
       border-radius: 4px;
+      border: none;
+      margin-right: 10px;
     }
     .chat-box button {
       padding: 10px 20px;
-      margin-left: 10px;
-      border: none;
       background-color: #00bcd4;
       color: white;
+      border: none;
       border-radius: 4px;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <canvas id="nema-canvas"></canvas>
+  <div id="scene-container"></div>
   <div class="chat-box">
-    <input type="text" id="userInput" placeholder="Scrivi qualcosa..." />
+    <input type="text" id="userInput" placeholder="Scrivi qualcosa...">
     <button onclick="sendMessage()">Invia</button>
   </div>
-  <script type="module" src="nema.js"></script>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+    document.getElementById('scene-container').appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1, 1, 1);
+    scene.add(light);
+
+    const loader = new GLTFLoader();
+    loader.load('avatar.glb', function(gltf) {
+      const model = gltf.scene;
+      scene.add(model);
+      model.position.set(0, -1, 0);
+    }, undefined, function(error) {
+      console.error(error);
+    });
+
+    camera.position.z = 3;
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / (window.innerHeight * 0.8);
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'it-IT';
+      utterance.pitch = 1;
+      utterance.rate = 1;
+      utterance.voice = speechSynthesis.getVoices().find(v => v.name.includes("female") || v.name.includes("Google"));
+      speechSynthesis.speak(utterance);
+    }
+
+    window.sendMessage = function () {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      if (message !== '') {
+        speak("Hai detto: " + message);
+        input.value = '';
+      }
+    }
+  </script>
 </body>
 </html>
