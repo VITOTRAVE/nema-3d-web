@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEMA 3D Assistant</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    canvas {
+      width: 100%;
+      height: 80vh;
+      display: block;
+    }
+    .chat-box {
+      width: 100%;
+      max-width: 600px;
+      background: #111;
+      border-top: 2px solid #444;
+      padding: 10px;
+    }
+    .chat-box input {
+      width: 80%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+    }
+    .chat-box button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      background-color: #00bcd4;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="nema-canvas"></canvas>
+  <div class="chat-box">
+    <input type="text" id="userInput" placeholder="Scrivi qualcosa..." />
+    <button onclick="sendMessage()">Invia</button>
+  </div>
+  <script type="module" src="nema.js"></script>
+</body>
+</html>
