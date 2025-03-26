@@ -68,7 +68,7 @@
     scene.add(light);
 
     const loader = new GLTFLoader();
-    loader.load('avatar.glb', function(gltf) {
+    loader.load('https://vitotrave.github.io/nema-3d-web/avatar.glb', function(gltf) {
       const model = gltf.scene;
       scene.add(model);
       model.position.set(0, -1, 0);
