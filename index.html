@@ -57,8 +57,9 @@
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer();
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+    renderer.setClearColor(0x000000);
     document.getElementById('scene-container').appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -67,13 +68,16 @@
     light.position.set(1, 1, 1);
     scene.add(light);
 
+    const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
+    scene.add(ambientLight);
+
     const loader = new GLTFLoader();
     loader.load('https://vitotrave.github.io/nema-3d-web/avatar.glb', function(gltf) {
       const model = gltf.scene;
       scene.add(model);
       model.position.set(0, -1, 0);
     }, undefined, function(error) {
-      console.error(error);
+      console.error('Errore nel caricamento GLB:', error);
     });
 
     camera.position.z = 3;
@@ -94,7 +98,7 @@
       utterance.lang = 'it-IT';
       utterance.pitch = 1;
       utterance.rate = 1;
-      utterance.voice = speechSynthesis.getVoices().find(v => v.name.includes("female") || v.name.includes("Google"));
+      utterance.voice = speechSynthesis.getVoices().find(v => v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("google"));
       speechSynthesis.speak(utterance);
     }
 
