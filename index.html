@@ -56,29 +56,37 @@
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/controls/OrbitControls.js';
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / (window.innerHeight * 0.8), 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
     renderer.setClearColor(0x000000);
     document.getElementById('scene-container').appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 1, 0);
+    controls.update();
 
     const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 1, 1);
+    light.position.set(1, 2, 3);
     scene.add(light);
-    const ambientLight = new THREE.AmbientLight(0x404040);
-    scene.add(ambientLight);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
     const loader = new GLTFLoader();
-    loader.load('avatar.glb', function (gltf) {
-      const model = gltf.scene;
-      scene.add(model);
-      model.position.set(0, -1, 0);
-      model.rotation.y = Math.PI; // faccia in avanti
-    }, undefined, function (error) {
-      console.error('Errore caricamento modello:', error);
-    });
+
+    loader.load(
+      'https://models.readyplayer.me/646de23a14220c4a62b6b2db.glb', // avatar funzionante pubblico temporaneo
+      function (gltf) {
+        const model = gltf.scene;
+        model.position.set(0, -1, 0);
+        model.scale.set(1.2, 1.2, 1.2);
+        scene.add(model);
+      },
+      undefined,
+      function (error) {
+        console.error('Errore caricamento modello:', error);
+      }
+    );
 
     camera.position.z = 3;
 
@@ -90,8 +98,10 @@
 
     function animate() {
       requestAnimationFrame(animate);
+      controls.update();
       renderer.render(scene, camera);
     }
+
     animate();
 
     function speak(text) {
@@ -99,7 +109,9 @@
       utterance.lang = 'it-IT';
       utterance.pitch = 1;
       utterance.rate = 1;
-      utterance.voice = speechSynthesis.getVoices().find(v => v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("google"));
+      utterance.voice = speechSynthesis.getVoices().find(v =>
+        v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("google")
+      );
       speechSynthesis.speak(utterance);
     }
 
@@ -110,7 +122,7 @@
         speak("Hai detto: " + message);
         input.value = '';
       }
-    }
+    };
   </script>
 </body>
 </html>
